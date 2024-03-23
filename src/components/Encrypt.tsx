@@ -32,23 +32,18 @@ const Encrypt: React.FC<any> = ({ setInitVector }: any) => {
   }
 
   const downloadEncrypted = () => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const arrayBuffer = e.target?.result;
-        if (arrayBuffer) {
-          encryptFile(new Blob([arrayBuffer]), password).then(
-            (encryptedBlob) => {
-              setFile(encryptedBlob);
-            }
-          );
-        }
-      };
-      reader.readAsArrayBuffer(file);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = URL.createObjectURL(file);
-      downloadLink.download = "encrypted_file";
-      downloadLink.click();
+    if (file && password) {
+      encryptFile(file, password).then((encryptedBlob) => {
+        setFile(encryptedBlob);
+
+        // Create a download link for the encrypted file
+        const downloadLink = document.createElement("a");
+        downloadLink.href = URL.createObjectURL(encryptedBlob);
+        downloadLink.download = "encrypted_file";
+        document.body.appendChild(downloadLink); // Append to the body to ensure visibility
+        downloadLink.click();
+        document.body.removeChild(downloadLink); // Clean up
+      });
     }
   };
 
@@ -69,7 +64,7 @@ const Encrypt: React.FC<any> = ({ setInitVector }: any) => {
         />
         <div
           className="cursor-pointer p-5 bg-gray-700 m-5 text-center mx-auto rounded-lg"
-          onClick={() => downloadEncrypted()}
+          onClick={downloadEncrypted}
         >
           Encrypt
         </div>
@@ -79,3 +74,4 @@ const Encrypt: React.FC<any> = ({ setInitVector }: any) => {
 };
 
 export default Encrypt;
+
